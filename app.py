@@ -1,14 +1,22 @@
-import streamlit as st
-import pandas as pd
 import sqlite3
 from io import BytesIO
 from pathlib import Path
+import pandas as pd
+import streamlit as st
 
 # =========================================================
-# HR GATE PASS MANAGEMENT SYSTEM - PHASE 2 UI/UX
+# 1. PAGE CONFIGURATION (Must be the first Streamlit command)
 # =========================================================
-import streamlit as st
-# --- CUSTOM CSS FOR BACKGROUND & GLASSMORPHISM LOGIN ---
+st.set_page_config(
+    page_title="HR Gate Pass Management System",
+    page_icon="🪪",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# =========================================================
+# 2. LOGIN SYSTEM & STYLES
+# =========================================================
 def apply_login_styles():
     st.markdown("""
         <style>
@@ -51,7 +59,6 @@ def apply_login_styles():
         </style>
     """, unsafe_allow_html=True)
 
-# --- LOGIN SYSTEM LOGIC ---
 def check_password():
     if "password_correct" not in st.session_state:
         st.session_state["password_correct"] = False
@@ -86,7 +93,7 @@ def check_password():
                 st.text_input("Password", type="password", key="password", placeholder="Enter password")
 
                 st.write("")
-                st.button("Login to Dashboard", on_click=password_entered, use_container_width=True)
+                st.button("Login to Dashboard", on_click=password_entered, use_container_width=True, key="login_btn")
 
                 if "password_correct" in st.session_state and st.session_state["password_correct"] is False:
                     st.error("❌ Invalid Username or Password")
@@ -99,27 +106,9 @@ def check_password():
 if not check_password():
     st.stop()
 
-# --- SIDEBAR LOGOUT ---
-with st.sidebar:
-    if st.button("🚪 Logout", use_container_width=True):
-        st.session_state["password_correct"] = False
-        st.rerun()
-
-# Aapka baki normal Streamlit app code yahan se start hoga...
-# Sidebar me Logout button
-with st.sidebar:
-    if st.button("🚪 Logout", use_container_width=True):
-        st.session_state["password_correct"] = False
-        st.rerun()
-
-# Aapka baki saara app code yahan se niche rahega....
-st.set_page_config(
-    page_title="HR Gate Pass Management System",
-    page_icon="🪪",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
-
+# =========================================================
+# 3. DIRECTORIES & DATABASE CONFIG
+# =========================================================
 BASE_DIR = Path(__file__).parent
 DATA_DIR = BASE_DIR / "data"
 UPLOAD_DIR = BASE_DIR / "uploads"
@@ -137,7 +126,9 @@ REQUIRED_COLUMNS = [
     "PASS Category", "Pass Status", "Medical Exp Date", "Status Print Card"
 ]
 
-# ------------------------- UI STYLE ----------------------
+# =========================================================
+# 4. MAIN APP DASHBOARD UI STYLES
+# =========================================================
 st.markdown("""
 <style>
 #MainMenu,footer,header{visibility:hidden}
@@ -166,6 +157,10 @@ st.markdown("""
 .stButton>button,.stDownloadButton>button{border-radius:12px;min-height:43px;font-weight:800;border:1px solid rgba(37,99,235,.15);box-shadow:0 5px 14px rgba(15,23,42,.05);transition:.18s}.stButton>button:hover,.stDownloadButton>button:hover{transform:translateY(-1px);box-shadow:0 9px 22px rgba(15,23,42,.10)}.stTextInput input,.stSelectbox [data-baseweb="select"],.stMultiSelect [data-baseweb="select"]{border-radius:12px}.stTextInput label,.stSelectbox label,.stMultiSelect label,.stFileUploader label{font-weight:750;color:#4b5a70}div[data-testid="stDataFrame"]{border:1px solid #e1e8f2;border-radius:14px;overflow:hidden;box-shadow:0 7px 22px rgba(15,23,42,.035)}.stAlert{border-radius:13px}.stFileUploader{border-radius:13px}hr{border:0;border-top:1px solid rgba(148,163,184,.2);margin:20px 0}[data-testid="stMetric"]{background:white;border:1px solid #e8edf4;border-radius:14px;padding:10px 13px}
 @media(max-width:900px){.block-container{padding-left:1rem;padding-right:1rem}.page-header{padding:20px;border-radius:18px}.page-title{font-size:30px}.kpi-value{font-size:26px}.profile-top{display:block}.profile-avatar{margin-bottom:12px}}
 </style>""", unsafe_allow_html=True)
+
+# =========================================================
+# 5. HELPER FUNCTIONS
+# =========================================================
 def page_header(title, subtitle, chip="HR GATE PASS MANAGEMENT"):
     st.markdown(
         f'<div class="page-header"><div class="header-chip">{chip}</div>'
@@ -174,7 +169,6 @@ def page_header(title, subtitle, chip="HR GATE PASS MANAGEMENT"):
         f'<span class="meta-pill">⚡ Live Database View</span></div></div>',
         unsafe_allow_html=True)
 
-# ------------------------- HELPERS -----------------------
 def normalize_column_name(column):
     return " ".join(str(column).replace("\xa0", " ").split()).strip()
 
@@ -255,7 +249,9 @@ def mini_chart(series, title, limit=8):
 create_database()
 df = load_data()
 
-# ------------------------- SIDEBAR -----------------------
+# =========================================================
+# 6. SIDEBAR MENU & LOGOUT
+# =========================================================
 with st.sidebar:
     st.markdown("""
     <div class="brand">
@@ -284,10 +280,16 @@ with st.sidebar:
     )
 
     st.markdown('<div class="side-section">System</div>', unsafe_allow_html=True)
+    
+    # SINGLE LOGOUT BUTTON WITH UNIQUE KEY
+    if st.button("🚪 Logout", key="sidebar_logout_btn", use_container_width=True):
+        st.session_state["password_correct"] = False
+        st.rerun()
+
     st.markdown('<div class="side-footer"><span class="online-dot"></span><b>System Online</b><br>Phase 2 • Dynamic database foundation<br>Secure HR compliance workspace</div>', unsafe_allow_html=True)
 
 # =========================================================
-# DASHBOARD
+# 7. DASHBOARD & NAVIGATION
 # =========================================================
 if menu == "📊 Dashboard":
     page_header("Dashboard", "HR manpower, gate pass and compliance overview")
@@ -353,7 +355,7 @@ if menu == "📊 Dashboard":
         st.dataframe(summary, use_container_width=True, hide_index=True)
 
 # =========================================================
-# UPLOAD
+# UPLOAD EXCEL
 # =========================================================
 elif menu == "📤 Upload Excel":
     page_header("Upload Excel", "Import and validate HR gate pass master data")
@@ -382,7 +384,7 @@ elif menu == "📤 Upload Excel":
 
                 st.dataframe(x[REQUIRED_COLUMNS].head(10), use_container_width=True, hide_index=True)
 
-                if st.button("💾 Import / Replace Database", type="primary", use_container_width=True):
+                if st.button("💾 Import / Replace Database", type="primary", use_container_width=True, key="import_db_btn"):
                     imp = x[REQUIRED_COLUMNS].fillna("").copy()
                     for col in REQUIRED_COLUMNS:
                         imp[col] = imp[col].astype(str).str.strip()
@@ -467,7 +469,7 @@ elif menu == "👥 Employee Master":
             st.dataframe(row[doc_cols].to_frame("Value"), use_container_width=True)
 
 # =========================================================
-# WC
+# WC POLICY
 # =========================================================
 elif menu == "🛡️ WC Policy":
     page_header("WC Policy Compliance", "Vendor-wise Workers Compensation policy coverage")
@@ -509,7 +511,7 @@ elif menu == "🏥 ESIC":
         st.dataframe(s, use_container_width=True, hide_index=True)
 
 # =========================================================
-# VENDOR
+# VENDOR ANALYSIS
 # =========================================================
 elif menu == "🏢 Vendor Analysis":
     page_header("Vendor Analysis", "Manpower and compliance performance by contractor")
@@ -529,7 +531,7 @@ elif menu == "🏢 Vendor Analysis":
         st.bar_chart(s.set_index("VendorName")["Total"])
 
 # =========================================================
-# EXPIRY
+# EXPIRY & ALERTS
 # =========================================================
 elif menu == "⏰ Expiry & Alerts":
     page_header("Expiry & Alerts", "Find expired and soon-to-expire documents")
@@ -579,5 +581,6 @@ elif menu == "📋 Master Data":
             data=out.getvalue(),
             file_name="GatePass_Report.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            use_container_width=True
+            use_container_width=True,
+            key="download_excel_btn"
         )
