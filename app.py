@@ -7,7 +7,49 @@ from pathlib import Path
 # =========================================================
 # HR GATE PASS MANAGEMENT SYSTEM - PHASE 2 UI/UX
 # =========================================================
+import streamlit as st
 
+# --- LOGIN SYSTEM START ---
+def check_password():
+    """Returns `True` if the user had the correct password."""
+
+    def password_entered():
+        """Checks whether a password entered by the user is correct."""
+        if (
+            st.session_state["username"] == "admin"
+            and st.session_state["password"] == "admin123"  # Change your password here
+        ):
+            st.session_state["password_correct"] = True
+            del st.session_state["password"]  # Don't keep password in memory
+            del st.session_state["username"]
+        else:
+            st.session_state["password_correct"] = False
+
+    if "password_correct" not in st.session_state:
+        # Show inputs for username and password
+        st.subheader("🔒 Gatepass System Login")
+        st.text_input("Username", key="username")
+        st.text_input("Password", type="password", key="password")
+        st.button("Login", on_click=password_entered)
+        return False
+    elif not st.session_state["password_correct"]:
+        # Password wrong, show input + error
+        st.subheader("🔒 Gatepass System Login")
+        st.text_input("Username", key="username")
+        st.text_input("Password", type="password", key="password")
+        st.button("Login", on_click=password_entered)
+        st.error("😕 Username ya Password galat hai")
+        return False
+    else:
+        # Password correct.
+        return True
+
+# Login check
+if not check_password():
+    st.stop()  # Do not run the rest of the app if not logged in
+# --- LOGIN SYSTEM END ---
+
+# Aapka baki saara app code yahan se niche rahega...
 st.set_page_config(
     page_title="HR Gate Pass Management System",
     page_icon="🪪",
