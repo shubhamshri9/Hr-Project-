@@ -69,7 +69,7 @@ def check_password():
         def password_entered():
             if (
                 st.session_state.get("username") == "HR-Admin5"
-                and st.session_state.get("password") == "Nokia@2026#"  # Yahan apna password set karein
+                and st.session_state.get("password") == "Nokia@2026#"  # Enter your password
             ):
                 st.session_state["password_correct"] = True
                 del st.session_state["password"]
