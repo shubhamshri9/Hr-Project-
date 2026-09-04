@@ -1,0 +1,5 @@
+data/
+uploads/
+*.db
+__pycache__/
+.venv/
