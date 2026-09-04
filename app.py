@@ -7,7 +7,6 @@ from pathlib import Path
 # =========================================================
 # HR GATE PASS MANAGEMENT SYSTEM - PHASE 2 UI/UX
 # =========================================================
-import streamlit as st
 
 # --- CUSTOM CSS FOR BACKGROUND & GLASSMORPHISM LOGIN ---
 def apply_login_styles():
