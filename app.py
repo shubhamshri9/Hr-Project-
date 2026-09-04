@@ -7,7 +7,6 @@ from pathlib import Path
 # =========================================================
 # HR GATE PASS MANAGEMENT SYSTEM - PHASE 2 UI/UX
 # =========================================================
-import streamlit as st
 
 # --- LOGIN SYSTEM START ---
 def check_password():
