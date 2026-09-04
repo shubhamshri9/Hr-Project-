@@ -7,52 +7,106 @@ from pathlib import Path
 # =========================================================
 # HR GATE PASS MANAGEMENT SYSTEM - PHASE 2 UI/UX
 # =========================================================
-#------- LOGIN SYSTEM START ---
+import streamlit as st
+
+# --- CUSTOM CSS FOR BACKGROUND & GLASSMORPHISM LOGIN ---
+def apply_login_styles():
+    st.markdown("""
+        <style>
+        /* Modern Dark Gradient Background */
+        .stApp {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
+            color: #ffffff;
+        }
+
+        /* Hide Streamlit Header & Footer on Login */
+        header {visibility: hidden;}
+        footer {visibility: hidden;}
+
+        /* Styled Input Fields */
+        div[data-baseweb="input"] {
+            background-color: rgba(255, 255, 255, 0.07) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            border-radius: 10px !important;
+            color: white !important;
+        }
+        div[data-baseweb="input"]:focus-within {
+            border-color: #a855f7 !important;
+            box-shadow: 0 0 10px rgba(168, 85, 247, 0.4) !important;
+        }
+
+        /* Custom Login Button */
+        div.stButton > button {
+            background: linear-gradient(90deg, #6366f1 0%, #a855f7 100%) !important;
+            color: white !important;
+            font-weight: bold !important;
+            border-radius: 10px !important;
+            border: none !important;
+            padding: 10px 24px !important;
+            transition: all 0.3s ease !important;
+        }
+        div.stButton > button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(168, 85, 247, 0.4) !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+# --- LOGIN SYSTEM LOGIC ---
 def check_password():
-    """Returns `True` if the user enters correct credentials."""
-
-    def password_entered():
-        if (
-            st.session_state["username"] == "admin"
-            and st.session_state["password"] == "admin123"  # Yahan apna password badlein
-        ):
-            st.session_state["password_correct"] = True
-            del st.session_state["password"]
-            del st.session_state["username"]
-        else:
-            st.session_state["password_correct"] = False
-
     if "password_correct" not in st.session_state:
         st.session_state["password_correct"] = False
 
     if not st.session_state["password_correct"]:
-        # Screen ke center me login box lane ke liye columns
-        col1, col2, col3 = st.columns([1, 1.5, 1])
+        apply_login_styles()
+
+        def password_entered():
+            if (
+                st.session_state.get("username") == "admin"
+                and st.session_state.get("password") == "admin123"  # Yahan apna password set karein
+            ):
+                st.session_state["password_correct"] = True
+                del st.session_state["password"]
+                del st.session_state["username"]
+            else:
+                st.session_state["password_correct"] = False
+
+        # Center Layout
+        col1, col2, col3 = st.columns([1, 1.2, 1])
 
         with col2:
-            st.markdown("---")
-            st.markdown("<h2 style='text-align: center;'>🔒 HR Gatepass Login</h2>", unsafe_allow_html=True)
-            st.caption("Kripya aage badhne ke liye login karein.")
-
-            st.text_input("Username", key="username", placeholder="Username likhein")
-            st.text_input("Password", type="password", key="password", placeholder="Password likhein")
-
-            st.write("") # Khali jagah ke liye
-            st.button("Login", on_click=password_entered, use_container_width=True, type="primary")
-
-            if "password_correct" in st.session_state and st.session_state["password_correct"] is False:
-                st.error("❌ Galat Username ya Password")
+            st.write("<br><br>", unsafe_allow_html=True)
             
-            st.markdown("---")
+            # Glass Container Card
+            with st.container():
+                st.markdown("<h2 style='text-align: center; color: #ffffff;'>🔒 HR Portal</h2>", unsafe_allow_html=True)
+                st.markdown("<p style='text-align: center; color: #cbd5e1; font-size: 14px;'>Authorized Access Only</p>", unsafe_allow_html=True)
+                st.write("")
+
+                st.text_input("Username", key="username", placeholder="Enter username")
+                st.text_input("Password", type="password", key="password", placeholder="Enter password")
+
+                st.write("")
+                st.button("Login to Dashboard", on_click=password_entered, use_container_width=True)
+
+                if "password_correct" in st.session_state and st.session_state["password_correct"] is False:
+                    st.error("❌ Invalid Username or Password")
+
         return False
 
     return True
 
-# App execution stop agar login na ho
+# Stop execution if not logged in
 if not check_password():
     st.stop()
-# --- LOGIN SYSTEM END ---
 
+# --- SIDEBAR LOGOUT ---
+with st.sidebar:
+    if st.button("🚪 Logout", use_container_width=True):
+        st.session_state["password_correct"] = False
+        st.rerun()
+
+# Aapka baki normal Streamlit app code yahan se start hoga...
 # Sidebar me Logout button
 with st.sidebar:
     if st.button("🚪 Logout", use_container_width=True):
