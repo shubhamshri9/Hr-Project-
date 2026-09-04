@@ -7,48 +7,59 @@ from pathlib import Path
 # =========================================================
 # HR GATE PASS MANAGEMENT SYSTEM - PHASE 2 UI/UX
 # =========================================================
-
-# --- LOGIN SYSTEM START ---
+#------- LOGIN SYSTEM START ---
 def check_password():
-    """Returns `True` if the user had the correct password."""
+    """Returns `True` if the user enters correct credentials."""
 
     def password_entered():
-        """Checks whether a password entered by the user is correct."""
         if (
             st.session_state["username"] == "admin"
-            and st.session_state["password"] == "admin123"  # Change your password here
+            and st.session_state["password"] == "admin123"  # Yahan apna password badlein
         ):
             st.session_state["password_correct"] = True
-            del st.session_state["password"]  # Don't keep password in memory
+            del st.session_state["password"]
             del st.session_state["username"]
         else:
             st.session_state["password_correct"] = False
 
     if "password_correct" not in st.session_state:
-        # Show inputs for username and password
-        st.subheader("🔒 Gatepass System Login")
-        st.text_input("Username", key="username")
-        st.text_input("Password", type="password", key="password")
-        st.button("Login", on_click=password_entered)
-        return False
-    elif not st.session_state["password_correct"]:
-        # Password wrong, show input + error
-        st.subheader("🔒 Gatepass System Login")
-        st.text_input("Username", key="username")
-        st.text_input("Password", type="password", key="password")
-        st.button("Login", on_click=password_entered)
-        st.error("😕 Username ya Password galat hai")
-        return False
-    else:
-        # Password correct.
-        return True
+        st.session_state["password_correct"] = False
 
-# Login check
+    if not st.session_state["password_correct"]:
+        # Screen ke center me login box lane ke liye columns
+        col1, col2, col3 = st.columns([1, 1.5, 1])
+
+        with col2:
+            st.markdown("---")
+            st.markdown("<h2 style='text-align: center;'>🔒 HR Gatepass Login</h2>", unsafe_allow_html=True)
+            st.caption("Kripya aage badhne ke liye login karein.")
+
+            st.text_input("Username", key="username", placeholder="Username likhein")
+            st.text_input("Password", type="password", key="password", placeholder="Password likhein")
+
+            st.write("") # Khali jagah ke liye
+            st.button("Login", on_click=password_entered, use_container_width=True, type="primary")
+
+            if "password_correct" in st.session_state and st.session_state["password_correct"] is False:
+                st.error("❌ Galat Username ya Password")
+            
+            st.markdown("---")
+        return False
+
+    return True
+
+# App execution stop agar login na ho
 if not check_password():
-    st.stop()  # Do not run the rest of the app if not logged in
+    st.stop()
 # --- LOGIN SYSTEM END ---
 
-# Aapka baki saara app code yahan se niche rahega...
+# Sidebar me Logout button
+with st.sidebar:
+    if st.button("🚪 Logout", use_container_width=True):
+        st.session_state["password_correct"] = False
+        st.rerun()
+
+# Aapka baki saara app code yahan se niche rahega....
 st.set_page_config(
     page_title="HR Gate Pass Management System",
     page_icon="🪪",
